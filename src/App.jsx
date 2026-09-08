@@ -6,15 +6,13 @@ import {
   useParams,
 } from "react-router-dom";
 
-import { useEffect, useState } from "react";
-
 import stories from "./data/stories";
 import "./App.css";
 
 
 /* =========================================================
-   CINEMATIC BACKGROUND
-========================================================= */
+   BACKGROUND
+   ========================================================= */
 
 function Background() {
   return (
@@ -37,7 +35,6 @@ function Background() {
       />
 
       <div className="background-overlay"></div>
-
       <div className="background-vignette"></div>
 
     </div>
@@ -47,7 +44,7 @@ function Background() {
 
 /* =========================================================
    NAVBAR
-========================================================= */
+   ========================================================= */
 
 function Navbar() {
   return (
@@ -59,6 +56,7 @@ function Navbar() {
       >
         prgstories
       </Link>
+
 
       <nav className="nav-links">
 
@@ -82,180 +80,155 @@ function Navbar() {
 
 
 /* =========================================================
+   SIDE WINDOW
+   ========================================================= */
+
+function SideWindow({ side, label }) {
+  return (
+    <aside className={`side-window side-window-${side}`}>
+
+      <div className="side-window-inner">
+
+        <div className="window-label">
+          {label}
+        </div>
+
+
+        <div className="window-lines">
+
+          <div className="window-line"></div>
+          <div className="window-line"></div>
+          <div className="window-line"></div>
+          <div className="window-line"></div>
+          <div className="window-line"></div>
+
+        </div>
+
+      </div>
+
+    </aside>
+  );
+}
+
+
+/* =========================================================
    HOME
-========================================================= */
+   ========================================================= */
 
 function Home() {
   return (
-    <>
-      <Background />
+    <main className="home">
 
-      <main>
+      <div className="window-stage">
 
-        <section className="home">
+        {/* LEFT WINDOW */}
 
-          <div className="home-content">
+        <SideWindow
+          side="left"
+          label="LIST 01"
+        />
 
-            <p className="home-eyebrow">
-              WELCOME TO PRGSTORIES
-            </p>
 
-            <h1>
-              Stories,
-              <br />
-              worlds & characters.
-            </h1>
+        {/* MAIN WINDOW */}
 
-            <p className="home-description">
-              A collection of stories, characters and worlds
-              brought together in one place.
-            </p>
+        <section className="main-window">
 
-            <Link
-              to="/stories"
-              className="primary-button"
-            >
-              Browse Stories
-            </Link>
-
+          <div className="main-window-inner">
+            {/* Main content will be added later */}
           </div>
 
         </section>
 
 
-        <section className="home-section">
+        {/* RIGHT WINDOW */}
 
-          <p className="home-eyebrow">
-            THE IDEA
-          </p>
+        <SideWindow
+          side="right"
+          label="LIST 02"
+        />
 
-          <h2>
-            A place for stories to live.
-          </h2>
+      </div>
 
-          <p>
-            prgstories is a growing archive of fictional
-            worlds, characters and stories.
-          </p>
-
-        </section>
-
-
-        <section className="home-section">
-
-          <p className="home-eyebrow">
-            THE LIBRARY
-          </p>
-
-          <h2>
-            Explore the stories.
-          </h2>
-
-          <Link
-            to="/stories"
-            className="primary-button"
-          >
-            Enter Library
-          </Link>
-
-        </section>
-
-      </main>
-    </>
+    </main>
   );
 }
 
 
 /* =========================================================
-   STORIES
-========================================================= */
+   STORIES PAGE
+   ========================================================= */
 
 function Stories() {
   return (
-    <>
-      <Background />
+    <main className="stories-page">
 
-      <main className="stories-page">
+      <header className="page-header">
 
-        <header className="page-header">
+        <div className="home-eyebrow">
+          PRGSTORIES
+        </div>
 
-          <p className="home-eyebrow">
-            THE LIBRARY
-          </p>
+        <h1>
+          Stories
+        </h1>
 
-          <h1>
-            Stories
-          </h1>
-
-          <p>
-            Explore the worlds, characters and stories
-            collected inside prgstories.
-          </p>
-
-        </header>
+      </header>
 
 
-        <div className="story-grid">
+      <section className="story-grid">
 
-          {stories.map((story, index) => (
+        {stories.map((story, index) => (
 
-            <article
-              className="story-card"
-              key={story.id}
-            >
+          <article
+            className="story-card"
+            key={story.id}
+          >
 
-              <div className="story-index">
-                {String(index + 1).padStart(2, "0")}
-              </div>
+            <div className="story-index">
+              {String(index + 1).padStart(2, "0")}
+            </div>
 
-              <p className="story-meta">
-                {story.genre} · {story.status}
-              </p>
 
-              <h2>
-                {story.title}
-              </h2>
+            <h2>
+              {story.title}
+            </h2>
 
-              <p>
-                {story.subtitle}
-              </p>
 
-              <div className="story-card-meta">
+            <p>
+              {story.description}
+            </p>
 
-                <span>
-                  {story.genre}
-                </span>
 
-                <span>
-                  {story.status}
-                </span>
+            <div className="story-meta">
+              {story.genre} · {story.status}
+            </div>
 
-              </div>
 
-              <br />
+            <div className="story-card-meta">
 
               <Link
                 to={`/stories/${story.id}`}
                 className="primary-button"
               >
-                Read Story →
+                Enter Story
               </Link>
 
-            </article>
+            </div>
 
-          ))}
+          </article>
 
-        </div>
+        ))}
 
-      </main>
-    </>
+      </section>
+
+    </main>
   );
 }
 
 
 /* =========================================================
-   STORY
-========================================================= */
+   STORY PAGE
+   ========================================================= */
 
 function Story() {
   const { storyId } = useParams();
@@ -264,211 +237,151 @@ function Story() {
     (item) => item.id === storyId
   );
 
-  const [entering, setEntering] = useState(true);
-
-
-  useEffect(() => {
-
-    window.scrollTo(0, 0);
-
-    const timer = setTimeout(() => {
-      setEntering(false);
-    }, 900);
-
-    return () => clearTimeout(timer);
-
-  }, [storyId]);
-
 
   if (!story) {
-
     return (
-      <>
-        <Background />
+      <main className="page not-found">
 
-        <main className="page">
+        <div className="home-eyebrow">
+          ERROR
+        </div>
 
-          <header className="page-header">
+        <h1>
+          Story Not Found
+        </h1>
 
-            <h1>
-              Story not found.
-            </h1>
+        <Link
+          to="/stories"
+          className="primary-button"
+        >
+          Back to Stories
+        </Link>
 
-            <Link
-              to="/stories"
-              className="primary-button"
-            >
-              Return to Stories
-            </Link>
-
-          </header>
-
-        </main>
-      </>
+      </main>
     );
   }
 
 
   return (
-    <>
-      <Background />
+    <main className="story-page">
+
+      <section className="story-hero">
+
+        <div className="story-hero-content">
+
+          <Link
+            to="/stories"
+            className="back-link"
+          >
+            ← Back to Stories
+          </Link>
 
 
-      {entering && (
+          <div className="story-label">
+            {story.genre} · {story.status}
+          </div>
 
-        <div className="story-transition">
 
-          <div className="story-transition-title">
+          <h1 className="story-title">
             {story.title}
-          </div>
+          </h1>
+
+
+          <p className="story-subtitle">
+            {story.subtitle}
+          </p>
 
         </div>
 
-      )}
+      </section>
 
 
-      <main className="story-page">
+      <section className="chapters">
+
+        {story.chapters.map((chapter, index) => (
+
+          <article
+            className="chapter"
+            key={chapter.id}
+          >
+
+            <div className="chapter-content">
+
+              <div className="chapter-number">
+                Chapter {String(index + 1).padStart(2, "0")}
+              </div>
 
 
-        <header className="story-hero">
-
-          <div className="story-hero-content">
-
-            <Link
-              to="/stories"
-              className="primary-button"
-            >
-              ← Back to Stories
-            </Link>
-
-            <p className="story-label">
-              {story.genre}
-            </p>
-
-            <h1 className="story-title">
-              {story.title}
-            </h1>
-
-            <p className="story-subtitle">
-              {story.subtitle}
-            </p>
-
-          </div>
-
-        </header>
+              <h2>
+                {chapter.title}
+              </h2>
 
 
-        <div className="chapters">
+              <div className="chapter-text">
+                {chapter.content}
+              </div>
 
-          {story.chapters.map(
-            (chapter, index) => (
+            </div>
 
-              <section
-                className="chapter"
-                key={chapter.id}
-              >
+          </article>
 
-                <p className="story-label">
-                  Chapter{" "}
-                  {String(index + 1).padStart(2, "0")}
-                </p>
+        ))}
 
-                <h2>
-                  {chapter.title}
-                </h2>
+      </section>
 
-                <div className="chapter-content">
-
-                  {chapter.content
-                    .trim()
-                    .split("\n\n")
-                    .map(
-                      (
-                        paragraph,
-                        paragraphIndex
-                      ) => (
-
-                        <p
-                          key={paragraphIndex}
-                        >
-                          {paragraph}
-                        </p>
-
-                      )
-                    )}
-
-                </div>
-
-              </section>
-
-            )
-          )}
-
-        </div>
-
-      </main>
-    </>
+    </main>
   );
 }
 
 
 /* =========================================================
    ABOUT
-========================================================= */
+   ========================================================= */
 
 function About() {
   return (
-    <>
-      <Background />
+    <main className="about-page">
 
-      <main className="about-page">
+      <header className="page-header">
 
-        <header className="page-header">
-
-          <p className="home-eyebrow">
-            ABOUT
-          </p>
-
-          <h1>
-            prgstories
-          </h1>
-
-          <p>
-            A home for stories, characters,
-            worlds and ideas.
-          </p>
-
-        </header>
-
-
-        <div className="about-content">
-
-          <h2>
-            A place for stories to live.
-          </h2>
-
-          <p>
-            prgstories is a growing archive of fictional
-            worlds, characters and stories.
-          </p>
-
+        <div className="home-eyebrow">
+          PRGSTORIES
         </div>
 
-      </main>
-    </>
+        <h1>
+          About
+        </h1>
+
+      </header>
+
+
+      <section className="about-content">
+
+        <p>
+          prgstories is a collection of stories,
+          characters and worlds brought together
+          in one place.
+        </p>
+
+      </section>
+
+    </main>
   );
 }
 
 
 /* =========================================================
    APP
-========================================================= */
+   ========================================================= */
 
 function App() {
   return (
     <BrowserRouter>
 
+      <Background />
+
       <Navbar />
+
 
       <Routes>
 
