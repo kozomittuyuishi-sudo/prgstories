@@ -341,6 +341,41 @@ main {
 }
 
 /* =========================================================
+   HOME SCROLL CONTAINER (scroll-driven animation wrapper)
+   ========================================================= */
+
+/*
+  The scroll container is 300vh tall.
+  The sticky inner is 100vh tall and stays pinned at top:0
+  while the container scrolls past — giving 200vh of scroll
+  travel during which the window-stage animation plays.
+*/
+
+.home-scroll-container {
+  position: relative;
+  height: 300vh;
+  /* Keep the container in normal flow so surrounding pages are unaffected */
+}
+
+.home-sticky-inner {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  /* overflow must be visible so side windows can slide out from behind
+     the main window without being clipped by this container */
+  overflow: visible;
+}
+
+/* When the sticky inner is active the .home must fill it */
+.home-sticky-inner .home {
+  height: 100%;
+  min-height: unset;
+  padding-top: 0;
+  padding-bottom: 0;
+  align-items: center;
+}
+
+/* =========================================================
    THREE-WINDOW STAGE
    ========================================================= */
 
@@ -536,6 +571,38 @@ main {
 }
 
 /* =========================================================
+   SCROLL-DRIVEN ANIMATION OVERRIDES
+   =========================================================
+   .side-window-animated is added by React when scrollProgress
+   is being driven.  The inline style on the element sets:
+
+     --sw-tx      translateX offset  (px, 0 at final state)
+     --sw-ry      rotateY value      (deg, ±10 at final state)
+     --sw-opacity opacity             (1 at final state)
+
+   We override the base transform here so both the positional
+   rotateY and the cinematic translateX are applied together.
+   ========================================================= */
+
+.side-window-left.side-window-animated {
+  transform:
+    translateY(-50%)
+    translateX(var(--sw-tx, 0px))
+    rotateY(var(--sw-ry, 10deg));
+
+  opacity: var(--sw-opacity, 1);
+}
+
+.side-window-right.side-window-animated {
+  transform:
+    translateY(-50%)
+    translateX(var(--sw-tx, 0px))
+    rotateY(var(--sw-ry, -10deg));
+
+  opacity: var(--sw-opacity, 1);
+}
+
+/* =========================================================
    SIDE HOVER
    ========================================================= */
 
@@ -563,6 +630,27 @@ main {
   box-shadow:
     0 0 32px rgba(70, 190, 245, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/*
+  When the scroll animation is active (panel has .side-window-animated),
+  we keep the hover border/shadow enhancement but do NOT override the
+  transform — the scroll-driven transform must remain authoritative.
+  At progress=1 the animated transform equals the natural final state,
+  so visually it is identical either way.
+*/
+.side-window-left.side-window-animated:hover {
+  transform:
+    translateY(-50%)
+    translateX(var(--sw-tx, 0px))
+    rotateY(var(--sw-ry, 10deg));
+}
+
+.side-window-right.side-window-animated:hover {
+  transform:
+    translateY(-50%)
+    translateX(var(--sw-tx, 0px))
+    rotateY(var(--sw-ry, -10deg));
 }
 
 /* =========================================================
@@ -1084,6 +1172,29 @@ main {
     position: sticky;
   }
 
+  /*
+    On mobile, collapse the scroll container back to normal flow.
+    The animation is skipped (JS passes progress=1) so panels show
+    in their natural stacked state.
+  */
+  .home-scroll-container {
+    height: auto;
+  }
+
+  .home-sticky-inner {
+    position: relative;
+    top: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  .home-sticky-inner .home {
+    min-height: calc(100vh - 90px);
+    height: auto;
+    padding-top: 70px;
+    padding-bottom: 100px;
+  }
+
   .window-stage {
     width: 100%;
     height: auto;
@@ -1121,6 +1232,18 @@ main {
     border-radius: 18px;
 
     order: 2;
+  }
+
+  /* On mobile reset the animated class transforms too */
+  .side-window-left.side-window-animated,
+  .side-window-right.side-window-animated {
+    transform: none;
+    opacity: 1;
+  }
+
+  .side-window-left.side-window-animated:hover,
+  .side-window-right.side-window-animated:hover {
+    transform: translateY(-3px);
   }
 
   .side-window-right {
@@ -1243,5 +1366,35 @@ main {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* Collapse scroll container — animation skipped entirely */
+  .home-scroll-container {
+    height: auto;
+  }
+
+  .home-sticky-inner {
+    position: relative;
+    top: auto;
+    height: auto;
+    overflow: visible;
+  }
+
+  .home-sticky-inner .home {
+    min-height: calc(100vh - 90px);
+    height: auto;
+    padding-top: 70px;
+    padding-bottom: 100px;
+  }
+
+  /* Ensure animated panels snap to final state */
+  .side-window-left.side-window-animated {
+    transform: translateY(-50%) rotateY(10deg);
+    opacity: 1;
+  }
+
+  .side-window-right.side-window-animated {
+    transform: translateY(-50%) rotateY(-10deg);
+    opacity: 1;
   }
 }
