@@ -1,29 +1,47 @@
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Tangerine:wght@400;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Tangerine:wght@400;700&display=swap');
+
 
 /* =========================================================
    ROOT
    ========================================================= */
 
 :root {
-  --bg: #070b0f;
-  --text: #f2f4f5;
-  --text-soft: #b7c0c6;
-  --text-muted: #7d8991;
-  --text-dim: #4e5961;
+  --bg: #0b0b0d;
 
-  --cyan: rgba(120, 210, 255, 0.75);
-  --cyan-soft: rgba(120, 210, 255, 0.25);
-  --line: rgba(160, 220, 255, 0.28);
+  --text: #f2f2f2;
+  --text-soft: #b8b8bd;
+  --text-muted: #77777f;
+  --text-dim: #4f4f56;
+
+  --line: rgba(255, 255, 255, 0.12);
 
   --content-width: 1440px;
   --reading-width: 760px;
+
   --page-padding: clamp(24px, 5vw, 96px);
 
-  /* Three-window system */
-  --main-width: min(52vw, 820px);
-  --side-width: clamp(180px, 14vw, 245px);
-  --window-gap: clamp(22px, 2.2vw, 36px);
+  /* Typography */
+  --font-logo: "Tangerine", cursive;
+  --font-royal: "Cinzel Decorative", serif;
+  --font-title: "Cormorant Garamond", serif;
+  --font-chapter: "Cinzel", serif;
+  --font-body: "EB Garamond", serif;
+  --font-ui: Arial, sans-serif;
+
+  /* =========================================================
+     STORY READER DIMENSIONS (Authoritative 3-Window System)
+     ========================================================= */
+  --reader-gap: clamp(16px, 1.8vw, 32px);
+  --reader-side-width: clamp(210px, 17.5vw, 300px);
+  --reader-main-width: clamp(560px, 46vw, 860px);
+  --reader-outer-width: calc(var(--reader-main-width) + (2 * var(--reader-side-width)) + (2 * var(--reader-gap)));
+
+  --reader-main-height: clamp(560px, 80vh, 820px);
+  --reader-side-height: clamp(480px, 70vh, 700px);
+
+  --reader-travel: calc(var(--reader-side-width) + var(--reader-gap) - 36px);
 }
+
 
 /* =========================================================
    RESET
@@ -31,6 +49,8 @@
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html {
@@ -38,22 +58,37 @@ html {
 }
 
 body {
-  margin: 0;
-  min-width: 320px;
   background: var(--bg);
   color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  font-family: var(--font-ui);
+  overflow-x: clip;
+}
+
+#root {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  border: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
 }
 
 a {
   color: inherit;
+  text-decoration: none;
 }
 
 button {
   font: inherit;
 }
+
+::selection {
+  background: rgba(255, 255, 255, 0.2);
+}
+
 
 /* =========================================================
    BACKGROUND
@@ -62,63 +97,81 @@ button {
 .background-layer {
   position: fixed;
   inset: 0;
+
   width: 100%;
   height: 100%;
+
   overflow: hidden;
-  background: var(--bg);
+
+  background: #0b0b0d;
+
   z-index: 0;
+
   pointer-events: none;
 }
 
 .background-image {
   position: absolute;
   inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
   object-position: center;
+
   z-index: 0;
 }
 
 .background-video {
   position: absolute;
   inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
   object-position: center;
+
   display: block;
+
   z-index: 1;
+
   opacity: 1;
 }
 
 .background-overlay {
   position: absolute;
   inset: 0;
+
   z-index: 2;
+
   background:
     linear-gradient(
       90deg,
-      rgba(3, 7, 11, 0.58),
-      rgba(3, 8, 13, 0.18) 50%,
-      rgba(3, 7, 11, 0.58)
+      rgba(5, 8, 12, 0.62),
+      rgba(5, 8, 12, 0.22) 55%,
+      rgba(5, 8, 12, 0.48)
     );
 }
 
 .background-vignette {
   position: absolute;
   inset: 0;
+
   z-index: 3;
+
   background:
     radial-gradient(
       ellipse at center,
-      transparent 22%,
-      rgba(0, 0, 0, 0.68) 100%
+      transparent 25%,
+      rgba(0, 0, 0, 0.58) 100%
     );
 }
 
+
 /* =========================================================
-   MAIN
+   MAIN LAYER
    ========================================================= */
 
 main {
@@ -126,25 +179,20 @@ main {
   z-index: 5;
 }
 
-.page {
-  position: relative;
-  min-height: calc(100vh - 90px);
-}
-
-.not-found {
-  padding: 180px var(--page-padding);
-}
 
 /* =========================================================
-   NAVBAR
+   NAVBAR — AERO GLASS
    ========================================================= */
 
 .navbar {
   position: sticky;
   top: 22px;
+
   z-index: 100;
+
   width: min(90%, 1400px);
   min-height: 64px;
+
   margin: 22px auto 0;
   padding: 0 30px;
 
@@ -152,56 +200,55 @@ main {
   align-items: center;
   justify-content: space-between;
 
-  border: 1px solid rgba(170, 220, 245, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
   border-radius: 22px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(35, 57, 70, 0.42),
-      rgba(15, 25, 33, 0.25)
-    );
+  background: rgba(20, 27, 34, 0.28);
 
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
 
   box-shadow:
-    0 8px 35px rgba(0, 0, 0, 0.32),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 0 25px rgba(80, 180, 230, 0.06);
+    0 8px 35px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 
   overflow: hidden;
 }
 
 .navbar::before {
   content: "";
+
   position: absolute;
   inset: 0;
+
   background:
     linear-gradient(
       110deg,
-      rgba(255, 255, 255, 0.10),
-      transparent 32%,
+      rgba(255, 255, 255, 0.12),
+      transparent 35%,
       transparent 70%,
-      rgba(120, 210, 255, 0.05)
+      rgba(255, 255, 255, 0.04)
     );
+
   pointer-events: none;
 }
 
 .navbar::after {
   content: "";
+
   position: absolute;
-  left: 8%;
-  right: 8%;
-  bottom: 0;
-  height: 1px;
+  inset: 0;
+
+  border-radius: inherit;
+
   background:
     linear-gradient(
-      90deg,
-      transparent,
-      rgba(130, 215, 255, 0.42),
-      transparent
+      180deg,
+      rgba(255, 255, 255, 0.08),
+      transparent 45%
     );
+
   pointer-events: none;
 }
 
@@ -210,519 +257,499 @@ main {
   z-index: 1;
 }
 
+
 /* =========================================================
    LOGO
    ========================================================= */
 
 .logo {
-  font-family: "Tangerine", cursive;
-  font-size: 36px;
+  font-family: var(--font-logo);
+
+  font-size: 38px;
   font-weight: 700;
+
   line-height: 1;
-  text-decoration: none;
-  color: rgba(248, 251, 253, 0.96);
+
+  letter-spacing: 0.01em;
+
+  /* Metallic silver */
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #d8d8d8 18%,
+    #858585 42%,
+    #f7f7f7 56%,
+    #707070 78%,
+    #ffffff 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  -webkit-text-fill-color: transparent;
 
   text-shadow:
-    0 0 8px rgba(255, 255, 255, 0.18),
-    0 0 22px rgba(130, 215, 255, 0.10);
+    0 2px 12px rgba(0, 0, 0, 0.5),
+    0 0 18px rgba(255, 255, 255, 0.12);
 
   transition:
     opacity 0.3s ease,
-    text-shadow 0.3s ease;
+    transform 0.3s ease,
+    filter 0.3s ease;
 }
 
 .logo:hover {
-  opacity: 1;
-  text-shadow:
-    0 0 10px rgba(255, 255, 255, 0.32),
-    0 0 28px rgba(130, 215, 255, 0.18);
+  opacity: 0.9;
+
+  transform: translateY(-1px);
+
+  filter:
+    brightness(1.2)
+    drop-shadow(0 0 10px rgba(255, 255, 255, 0.18));
 }
 
 /* =========================================================
-   NAV LINKS
+   NAVIGATION
    ========================================================= */
 
 .nav-links {
   display: flex;
   align-items: center;
+
   gap: 38px;
 }
 
 .nav-links a {
   position: relative;
-  color: rgba(235, 242, 246, 0.68);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.02em;
+
+  font-family: var(--font-ui);
+
+  font-size: 12px;
+  font-weight: 500;
+
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  color: rgba(255, 255, 255, 0.62);
 
   transition:
     color 0.3s ease,
-    text-shadow 0.3s ease;
+    opacity 0.3s ease;
+}
+
+.nav-links a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -8px;
+
+  width: 0;
+  height: 1px;
+
+  background: rgba(255, 255, 255, 0.85);
+
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.45);
+
+  transition: width 0.3s ease;
 }
 
 .nav-links a:hover {
   color: #ffffff;
-  text-shadow: 0 0 12px rgba(130, 215, 255, 0.30);
 }
 
-.nav-links a.active {
-  color: #ffffff;
+.nav-links a:hover::after {
+  width: 100%;
 }
 
-.nav-links a.active::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: -12px;
-  width: 38px;
-  height: 2px;
-  transform: translateX(-50%);
-  background: rgba(150, 220, 255, 0.9);
-  box-shadow: 0 0 12px rgba(100, 200, 255, 0.65);
-  border-radius: 999px;
-}
 
 /* =========================================================
-   HOME
+   HOME — generic full-bleed centered page.
+   NOTE: no three-window markup lives here. This class is a
+   plain layout utility now used only by the placeholder.
    ========================================================= */
 
 .home {
   position: relative;
-  min-height: calc(100vh - 90px);
-  padding: 70px 20px 100px;
+
+  min-height: calc(100vh - 100px);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  overflow: visible;
+  padding:
+    90px
+    24px
+    80px;
+
+  overflow: hidden;
 }
 
-.home-content {
-  position: relative;
-  z-index: 10;
-  width: min(760px, 100%);
-  margin-left: max(0px, 3vw);
-  padding-top: 20px;
+.home-placeholder {
+  text-align: center;
 }
 
-.home-eyebrow {
-  margin: 0 0 24px;
-  color: rgba(210, 230, 240, 0.58);
-  font-family: "Cinzel", serif;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-}
+.home-placeholder-text {
+  font-family: var(--font-title);
 
-.home h1 {
-  margin: 0;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(48px, 5.5vw, 88px);
-  font-weight: 500;
-  line-height: 0.98;
-  letter-spacing: -0.045em;
-}
+  font-size: clamp(22px, 3vw, 32px);
 
-.home-description {
-  max-width: 620px;
-  margin: 34px 0 38px;
+  font-style: italic;
+
   color: var(--text-soft);
-  font-family: "EB Garamond", serif;
-  font-size: 20px;
-  line-height: 1.7;
 }
 
-.home-section {
-  min-height: 40vh;
-  padding: 100px var(--page-padding);
-}
 
 /* =========================================================
-   HOME SCROLL CONTAINER (scroll-driven animation wrapper)
+   STORY READER — the ONLY three-window system in the app.
+   Everything below (through the Story Reader mobile query)
+   is scoped to /stories/:storyId and touches nothing on /,
+   /stories, or /about.
    ========================================================= */
 
-/*
-  The scroll container is 300vh tall.
-  The sticky inner is 100vh tall and stays pinned at top:0
-  while the container scrolls past — giving 200vh of scroll
-  travel during which the window-stage animation plays.
-*/
-
-.home-scroll-container {
+.story-reader-page {
   position: relative;
-  height: 300vh;
-  /* Keep the container in normal flow so surrounding pages are unaffected */
+
+  overflow-x: clip;
 }
 
-.home-sticky-inner {
+
+/* Tall scroll track supplies the scroll distance that
+   drives --reveal from 0 to 1. The visible stage stays
+   pinned (sticky) while this track scrolls underneath it. */
+
+.story-reader-scroll-track {
+  position: relative;
+
+  height: 220vh;
+}
+
+.story-reader-stage-wrapper {
   position: sticky;
   top: 0;
+
   height: 100vh;
-  /* overflow must be visible so side windows can slide out from behind
-     the main window without being clipped by this container */
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding:
+    44px
+    16px
+    20px;
+
   overflow: visible;
+  box-sizing: border-box;
 }
 
-/* When the sticky inner is active the .home must fill it */
-.home-sticky-inner .home {
-  height: 100%;
-  min-height: unset;
-  padding-top: 0;
-  padding-bottom: 0;
-  align-items: center;
-}
 
 /* =========================================================
-   THREE-WINDOW STAGE
+   WINDOW STAGE
+   Authoritative 3-Window 3D Composition
    ========================================================= */
 
 .window-stage {
   position: relative;
-  width: min(1500px, 96vw);
-  height: min(700px, 76vh);
-  margin: 0 auto;
-  perspective: 1600px;
+
+  width: var(--reader-outer-width);
+  max-width: calc(100vw - 32px);
+
+  height: var(--reader-main-height);
+
+  perspective: 1200px;
+
+  transform-style: preserve-3d;
+
+  --reveal: 0;
 }
 
-/*
-  IMPORTANT:
-  The three windows are completely independent elements.
-
-  MAIN:
-  centered.
-
-  LEFT:
-  completely separate from main,
-  shorter,
-  positioned outside the main panel,
-  rotated inward toward the main.
-
-  RIGHT:
-  same idea, mirrored.
-*/
 
 /* =========================================================
-   MAIN WINDOW
+   MAIN WINDOW — straight, centered, dominant, stationary
+   Occupies ~75–85% viewport height, no 16:9 constraint
    ========================================================= */
 
 .main-window {
   position: absolute;
+
   top: 50%;
   left: 50%;
 
-  width: var(--main-width);
-  aspect-ratio: 16 / 9;
-
-  transform: translate(-50%, -50%);
-
   z-index: 5;
 
-  border: 1px solid rgba(145, 220, 255, 0.62);
-  border-radius: 22px;
+  width: var(--reader-main-width);
+  height: var(--reader-main-height);
+
+  transform:
+    translate(-50%, -50%);
+
+  transform-style: preserve-3d;
+
+  border:
+    1px solid
+    rgba(150, 220, 255, 0.55);
+
+  border-radius: 24px;
 
   background:
-    linear-gradient(
-      135deg,
-      rgba(20, 44, 58, 0.25),
-      rgba(8, 18, 27, 0.17)
-    );
+    rgba(7, 15, 22, 0.22);
 
-  backdrop-filter: blur(5px) saturate(135%);
-  -webkit-backdrop-filter: blur(5px) saturate(135%);
+  backdrop-filter:
+    blur(8px)
+    saturate(135%);
+
+  -webkit-backdrop-filter:
+    blur(8px)
+    saturate(135%);
 
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.025),
-    0 0 35px rgba(80, 190, 245, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.17),
-    inset 0 0 40px rgba(80, 190, 245, 0.025);
+    0 0 0 1px rgba(255, 255, 255, 0.04),
+    0 0 35px rgba(70, 190, 255, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 
   overflow: hidden;
 }
 
 .main-window::before {
   content: "";
+
   position: absolute;
   inset: 0;
+
   background:
     linear-gradient(
       115deg,
-      rgba(255, 255, 255, 0.075),
-      transparent 22%,
-      transparent 68%,
-      rgba(120, 215, 255, 0.035)
+      rgba(255, 255, 255, 0.09),
+      transparent 25%,
+      transparent 70%,
+      rgba(120, 210, 255, 0.05)
     );
+
   pointer-events: none;
 }
 
 .main-window::after {
   content: "";
+
   position: absolute;
+
   top: 0;
-  left: 9%;
-  width: 82%;
+  left: 8%;
+
+  width: 84%;
   height: 1px;
+
   background:
     linear-gradient(
       90deg,
       transparent,
-      rgba(180, 235, 255, 0.9),
+      rgba(180, 235, 255, 0.85),
       transparent
     );
-  box-shadow: 0 0 13px rgba(90, 205, 255, 0.55);
+
+  box-shadow:
+    0 0 12px rgba(80, 200, 255, 0.55);
+
   pointer-events: none;
 }
 
 .main-window-inner {
   position: relative;
+
   width: 100%;
   height: 100%;
 }
 
+
 /* =========================================================
-   SIDE WINDOWS
+   SIDE WINDOWS — mirrored, tilted inward, substantial
+   Initial: mostly hidden behind Main (translateX inward)
+   Scroll: horizontally reveals outward to exact --reader-gap
    ========================================================= */
 
-.side-window-left,
-.side-window-right {
+.side-window {
   position: absolute;
+
   top: 50%;
 
-  width: var(--side-width);
-  height: 68%;
+  z-index: 3;
 
-  border: 1px solid rgba(125, 205, 240, 0.52);
+  width: var(--reader-side-width);
+  height: var(--reader-side-height);
+
+  transform-style: preserve-3d;
+
+  border-radius: 20px;
 
   background:
-    linear-gradient(
-      135deg,
-      rgba(18, 40, 52, 0.34),
-      rgba(7, 18, 27, 0.25)
-    );
+    rgba(7, 15, 22, 0.28);
 
-  backdrop-filter: blur(8px) saturate(135%);
-  -webkit-backdrop-filter: blur(8px) saturate(135%);
+  border:
+    1px solid
+    rgba(130, 210, 255, 0.48);
+
+  backdrop-filter:
+    blur(8px)
+    saturate(135%);
+
+  -webkit-backdrop-filter:
+    blur(8px)
+    saturate(135%);
 
   box-shadow:
-    0 0 25px rgba(60, 180, 235, 0.10),
-    inset 0 1px 0 rgba(255, 255, 255, 0.10),
-    inset 0 0 30px rgba(100, 210, 255, 0.025);
+    0 0 25px rgba(60, 180, 255, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 
   overflow: hidden;
 
   transition:
-    transform 0.45s ease,
-    border-color 0.45s ease,
-    box-shadow 0.45s ease;
-
-  z-index: 3;
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
-/*
-  LEFT:
-  The panel sits outside the main panel.
-  Its right edge approaches the main panel,
-  while the whole panel remains visibly detached.
-  Positive rotateY turns its face toward the center.
-*/
-
 .side-window-left {
-  left:
-    calc(
-      50% -
-      (var(--main-width) / 2) -
-      var(--window-gap) -
-      var(--side-width)
-    );
-
-  transform:
-    translateY(-50%)
-    rotateY(10deg);
+  right: calc(50% + (var(--reader-main-width) / 2) + var(--reader-gap));
 
   transform-origin: right center;
 
-  border-radius: 18px 10px 10px 18px;
-}
-
-/*
-  RIGHT:
-  Mirrored geometry.
-  Negative rotateY turns its face toward the center.
-*/
-
-.side-window-right {
-  right:
-    calc(
-      50% -
-      (var(--main-width) / 2) -
-      var(--window-gap) -
-      var(--side-width)
-    );
-
   transform:
     translateY(-50%)
-    rotateY(-10deg);
+    translateX(calc((1 - var(--reveal, 0)) * var(--reader-travel)))
+    rotateY(calc(var(--reveal, 0) * 34deg));
+}
+
+.side-window-right {
+  left: calc(50% + (var(--reader-main-width) / 2) + var(--reader-gap));
 
   transform-origin: left center;
 
-  border-radius: 10px 18px 18px 10px;
-}
-
-/* =========================================================
-   SCROLL-DRIVEN ANIMATION OVERRIDES
-   =========================================================
-   .side-window-animated is added by React when scrollProgress
-   is being driven.  The inline style on the element sets:
-
-     --sw-tx      translateX offset  (px, 0 at final state)
-     --sw-ry      rotateY value      (deg, ±10 at final state)
-     --sw-opacity opacity             (1 at final state)
-
-   We override the base transform here so both the positional
-   rotateY and the cinematic translateX are applied together.
-   ========================================================= */
-
-.side-window-left.side-window-animated {
   transform:
     translateY(-50%)
-    translateX(var(--sw-tx, 0px))
-    rotateY(var(--sw-ry, 10deg));
-
-  opacity: var(--sw-opacity, 1);
+    translateX(calc((1 - var(--reveal, 0)) * -1 * var(--reader-travel)))
+    rotateY(calc(var(--reveal, 0) * -34deg));
 }
 
-.side-window-right.side-window-animated {
-  transform:
-    translateY(-50%)
-    translateX(var(--sw-tx, 0px))
-    rotateY(var(--sw-ry, -10deg));
-
-  opacity: var(--sw-opacity, 1);
-}
 
 /* =========================================================
-   SIDE HOVER
+   SIDE PANEL HOVER
+   (relaxes the rotation slightly, still driven by --reveal
+   so it never fights the scroll position)
    ========================================================= */
 
 .side-window-left:hover {
   transform:
     translateY(-50%)
-    rotateY(6deg)
-    translateX(-3px);
+    translateX(calc((1 - var(--reveal, 0)) * var(--reader-travel)))
+    rotateY(calc(var(--reveal, 0) * 26deg));
 
-  border-color: rgba(155, 225, 255, 0.70);
+  border-color: rgba(160, 225, 255, 0.7);
 
   box-shadow:
-    0 0 32px rgba(70, 190, 245, 0.15),
+    0 0 32px rgba(70, 190, 255, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
 .side-window-right:hover {
   transform:
     translateY(-50%)
-    rotateY(-6deg)
-    translateX(3px);
+    translateX(calc((1 - var(--reveal, 0)) * -1 * var(--reader-travel)))
+    rotateY(calc(var(--reveal, 0) * -26deg));
 
-  border-color: rgba(155, 225, 255, 0.70);
+  border-color: rgba(160, 225, 255, 0.7);
 
   box-shadow:
-    0 0 32px rgba(70, 190, 245, 0.15),
+    0 0 32px rgba(70, 190, 255, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
 
-/*
-  When the scroll animation is active (panel has .side-window-animated),
-  we keep the hover border/shadow enhancement but do NOT override the
-  transform — the scroll-driven transform must remain authoritative.
-  At progress=1 the animated transform equals the natural final state,
-  so visually it is identical either way.
-*/
-.side-window-left.side-window-animated:hover {
-  transform:
-    translateY(-50%)
-    translateX(var(--sw-tx, 0px))
-    rotateY(var(--sw-ry, 10deg));
-}
-
-.side-window-right.side-window-animated:hover {
-  transform:
-    translateY(-50%)
-    translateX(var(--sw-tx, 0px))
-    rotateY(var(--sw-ry, -10deg));
-}
 
 /* =========================================================
-   SIDE WINDOW INNER
+   SIDE PANEL INNER (structural — labels/lines used by the
+   panel content classes below)
    ========================================================= */
 
-.side-window-inner {
+.window-inner {
   position: relative;
+
   width: 100%;
   height: 100%;
-  padding: 30px 22px;
-}
 
-/* =========================================================
-   SIDE LABEL
-   ========================================================= */
+  padding:
+    28px
+    22px;
+}
 
 .window-label {
-  font-family: "Cinzel", serif;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  color: rgba(230, 244, 250, 0.72);
-  text-transform: uppercase;
-  text-align: center;
-  text-shadow: 0 0 10px rgba(150, 220, 255, 0.10);
-}
+  font-family: var(--font-chapter);
 
-/* =========================================================
-   SIDE LIST
-   ========================================================= */
+  font-size: 10px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.28em;
+
+  color:
+    rgba(235, 248, 255, 0.72);
+
+  text-transform: uppercase;
+}
 
 .window-lines {
   display: flex;
+
   flex-direction: column;
-  gap: 32px;
-  margin-top: 42px;
+
+  gap: 28px;
+
+  margin-top: 36px;
 }
 
 .window-line {
   width: 100%;
   height: 1px;
+
   background:
     linear-gradient(
       90deg,
-      rgba(110, 205, 250, 0.55),
-      rgba(110, 205, 250, 0.08)
+      rgba(100, 190, 240, 0.55),
+      rgba(100, 190, 240, 0.08)
     );
-  box-shadow: 0 0 6px rgba(80, 190, 240, 0.10);
+
+  box-shadow:
+    0 0 6px rgba(80, 180, 240, 0.08);
 }
 
+
 /* =========================================================
-   SIDE EDGE LIGHT
+   SIDE PANEL GLOW EDGE — on the inner edge, pointing at main
    ========================================================= */
 
 .side-window-left::after,
 .side-window-right::after {
   content: "";
+
   position: absolute;
+
   top: 8%;
   bottom: 8%;
+
   width: 1px;
 
   background:
     linear-gradient(
       180deg,
       transparent,
-      rgba(130, 220, 255, 0.85),
+      rgba(130, 220, 255, 0.9),
       transparent
     );
 
-  box-shadow: 0 0 13px rgba(80, 200, 255, 0.45);
+  box-shadow:
+    0 0 14px rgba(80, 200, 255, 0.55);
+
   pointer-events: none;
 }
 
@@ -734,64 +761,570 @@ main {
   left: 0;
 }
 
+
 /* =========================================================
-   STANDARD PAGE CONTAINER
+   STORY READER CONTENT — left/main/right panel content
    ========================================================= */
 
-.container {
-  width: min(
-    calc(100% - (var(--page-padding) * 2)),
-    var(--content-width)
-  );
-  margin: 0 auto;
+.reader-info-inner {
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+
+  overflow-y: auto;
+  overflow-x: hidden;
 }
+
+.reader-info-inner .back-link {
+  margin-bottom: 18px;
+
+  font-size: 10px;
+}
+
+.reader-info-inner .window-label {
+  margin-bottom: 14px;
+}
+
+.reader-story-title {
+  margin-bottom: 10px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(22px, 2vw, 28px);
+
+  font-weight: 500;
+  font-style: italic;
+
+  line-height: 1.1;
+
+  letter-spacing: -0.02em;
+
+  color: var(--text);
+}
+
+.reader-story-description {
+  margin-bottom: 22px;
+
+  font-family: var(--font-body);
+
+  font-size: 14px;
+
+  line-height: 1.55;
+
+  color: var(--text-soft);
+}
+
+.reader-chapter-list-label {
+  margin-bottom: 12px;
+
+  font-family: var(--font-chapter);
+
+  font-size: 10px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.24em;
+
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+}
+
+.reader-chapter-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.reader-chapter-list-empty {
+  font-family: var(--font-body);
+
+  font-size: 14px;
+
+  color: var(--text-muted);
+}
+
+.reader-chapter-btn {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.03);
+
+  cursor: pointer;
+
+  text-align: left;
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.reader-chapter-btn:hover {
+  background: rgba(130, 210, 255, 0.08);
+
+  border-color: rgba(130, 210, 255, 0.35);
+}
+
+.reader-chapter-btn-active {
+  background: rgba(130, 210, 255, 0.12);
+
+  border-color: rgba(150, 220, 255, 0.55);
+
+  box-shadow:
+    0 0 14px rgba(70, 190, 255, 0.15);
+}
+
+.reader-chapter-btn-number {
+  font-family: var(--font-chapter);
+
+  font-size: 10px;
+
+  letter-spacing: 0.1em;
+
+  color: var(--text-muted);
+}
+
+.reader-chapter-btn-title {
+  font-family: var(--font-title);
+
+  font-size: 15px;
+
+  font-style: italic;
+
+  color: var(--text-soft);
+}
+
+.reader-chapter-btn-active .reader-chapter-btn-title,
+.reader-chapter-btn-active .reader-chapter-btn-number {
+  color: #ffffff;
+}
+
+.reader-main-inner {
+  height: 100%;
+
+  padding: 34px 40px;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reader-chapter-title {
+  margin-bottom: 22px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(28px, 3vw, 42px);
+
+  font-weight: 500;
+  font-style: italic;
+
+  line-height: 1.05;
+
+  letter-spacing: -0.02em;
+
+  color: var(--text);
+}
+
+.reader-main-inner .chapter-text {
+  font-size: 17px;
+
+  line-height: 1.7;
+}
+
+.reader-comments-inner {
+  display: flex;
+  flex-direction: column;
+
+  height: 100%;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.reader-comments-placeholder {
+  flex: 1;
+
+  margin-top: 20px;
+}
+
+.reader-comments-empty {
+  font-family: var(--font-body);
+
+  font-size: 14px;
+
+  line-height: 1.55;
+
+  color: var(--text-muted);
+}
+
+.reader-comment-button {
+  width: 100%;
+
+  margin-top: 16px;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   STORY READER — INTERNAL SCROLLBARS
+   ========================================================= */
+
+.reader-main-inner,
+.reader-info-inner,
+.reader-comments-inner {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(130, 210, 255, 0.25) transparent;
+}
+
+.reader-main-inner::-webkit-scrollbar,
+.reader-info-inner::-webkit-scrollbar,
+.reader-comments-inner::-webkit-scrollbar {
+  width: 6px;
+}
+
+.reader-main-inner::-webkit-scrollbar-track,
+.reader-info-inner::-webkit-scrollbar-track,
+.reader-comments-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.reader-main-inner::-webkit-scrollbar-thumb,
+.reader-info-inner::-webkit-scrollbar-thumb,
+.reader-comments-inner::-webkit-scrollbar-thumb {
+  background: rgba(130, 210, 255, 0.25);
+  border-radius: 3px;
+}
+
+.reader-main-inner::-webkit-scrollbar-thumb:hover,
+.reader-info-inner::-webkit-scrollbar-thumb:hover,
+.reader-comments-inner::-webkit-scrollbar-thumb:hover {
+  background: rgba(130, 210, 255, 0.5);
+}
+
+
+/* =========================================================
+   STORY READER — LAPTOP / MEDIUM DESKTOP RESPONSIVENESS
+   Ensures 85-92% occupancy with comfortable margins and no
+   horizontal overflow on compact laptop screens
+   ========================================================= */
+
+@media (max-width: 1200px) {
+  :root {
+    --reader-gap: clamp(14px, 1.6vw, 22px);
+    --reader-side-width: clamp(185px, 18vw, 240px);
+    --reader-main-width: clamp(480px, 46vw, 600px);
+  }
+}
+
+
+/* =========================================================
+   STORY READER — MOBILE
+   Scroll-reveal and 3D tilt are disabled below 900px; the
+   stage collapses to a straight stacked column instead.
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .story-reader-scroll-track {
+    height: auto;
+  }
+
+  .story-reader-stage-wrapper {
+    position: relative;
+
+    top: auto;
+
+    height: auto;
+
+    padding:
+      80px
+      24px
+      100px;
+
+    overflow: visible;
+  }
+
+  .window-stage {
+    position: relative;
+
+    width: 100%;
+    max-width: 100%;
+
+    height: auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    gap: 20px;
+
+    perspective: none;
+  }
+
+  .main-window,
+  .side-window {
+    position: relative;
+
+    top: auto;
+    left: auto;
+    right: auto;
+  }
+
+  .main-window {
+    width: 100%;
+    max-width: 650px;
+
+    height: auto;
+    aspect-ratio: auto;
+
+    min-height: 55vh;
+
+    order: 1;
+
+    transform: none;
+  }
+
+  .side-window {
+    width: 100%;
+    max-width: 650px;
+
+    height: auto;
+    min-height: 200px;
+
+    border-radius: 18px;
+
+    transform: none;
+  }
+
+  .side-window-left,
+  .side-window-right {
+    transform: none;
+  }
+
+  .side-window-left:hover,
+  .side-window-right:hover {
+    transform: none;
+  }
+
+  .side-window-left {
+    order: 2;
+  }
+
+  .side-window-right {
+    order: 3;
+  }
+
+  .reader-info-inner,
+  .reader-comments-inner,
+  .reader-main-inner {
+    height: 100%;
+  }
+
+  .reader-main-inner {
+    padding: 26px 24px;
+  }
+
+  .reader-chapter-title {
+    font-size: clamp(26px, 6vw, 34px);
+  }
+}
+
+
+/* =========================================================
+   PRIMARY BUTTON
+   ========================================================= */
+
+.primary-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 48px;
+
+  padding:
+    0
+    24px;
+
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  border-radius: 14px;
+
+  background: rgba(255, 255, 255, 0.08);
+
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+
+  font-family: var(--font-ui);
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 0.18em;
+
+  text-transform: uppercase;
+
+  color: #ffffff;
+
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.primary-button:hover {
+  background: rgba(255, 255, 255, 0.14);
+
+  border-color: rgba(255, 255, 255, 0.35);
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.28);
+}
+
+
+/* =========================================================
+   HOME SECONDARY SECTION
+   ========================================================= */
+
+.home-section {
+  position: relative;
+
+  z-index: 10;
+
+  width: min(
+    var(--content-width),
+    calc(100% - (var(--page-padding) * 2))
+  );
+
+  margin: 0 auto;
+
+  padding:
+    120px
+    0;
+}
+
+.home-section h2 {
+  margin-bottom: 20px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(38px, 4vw, 64px);
+
+  font-weight: 500;
+
+  font-style: italic;
+
+  line-height: 1;
+
+  letter-spacing: -0.02em;
+}
+
+
+/* =========================================================
+   STANDARD PAGE
+   ========================================================= */
+
+.page {
+  position: relative;
+
+  z-index: 10;
+
+  width: min(
+    var(--content-width),
+    calc(100% - (var(--page-padding) * 2))
+  );
+
+  margin: 0 auto;
+
+  padding:
+    140px
+    0
+    160px;
+}
+
+.page h1 {
+  font-family: var(--font-royal);
+
+  font-size: clamp(42px, 5vw, 76px);
+
+  font-weight: 700;
+
+  line-height: 1.05;
+
+  letter-spacing: -0.02em;
+
+  text-transform: uppercase;
+}
+
 
 /* =========================================================
    PAGE HEADER
    ========================================================= */
 
 .page-header {
-  padding: 130px var(--page-padding) 80px;
+  max-width: 900px;
+
+  margin-bottom: 80px;
 }
 
-.page-header h1 {
-  margin: 0;
-  font-family: "Cinzel", serif;
-  font-size: clamp(44px, 5vw, 72px);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.015em;
+.page-header .home-eyebrow {
+  margin-bottom: 20px;
 }
 
-.page-header p {
-  max-width: 650px;
-  margin-top: 24px;
-  color: var(--text-soft);
-  font-family: "EB Garamond", serif;
-  font-size: 18px;
-  line-height: 1.7;
-}
 
 /* =========================================================
    STORIES PAGE
    ========================================================= */
 
 .stories-page {
-  min-height: 100vh;
-  padding-bottom: 120px;
-}
+  position: relative;
 
-.story-grid {
+  z-index: 10;
+
   width: min(
-    calc(100% - (var(--page-padding) * 2)),
-    var(--content-width)
+    var(--content-width),
+    calc(100% - (var(--page-padding) * 2))
   );
+
   margin: 0 auto;
 
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
+  padding:
+    140px
+    0
+    160px;
 }
+
+
+/* =========================================================
+   STORY GRID
+   ========================================================= */
+
+.story-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(300px, 1fr)
+    );
+
+  gap: 28px;
+}
+
 
 /* =========================================================
    STORY CARD
@@ -799,189 +1332,247 @@ main {
 
 .story-card {
   position: relative;
-  min-height: 300px;
-  padding: 32px;
 
-  border: 1px solid rgba(150, 210, 235, 0.14);
-  border-radius: 22px;
+  min-height: 360px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.08),
-      rgba(255, 255, 255, 0.025)
-    );
+  padding: 34px;
 
-  backdrop-filter: blur(16px) saturate(130%);
-  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  border: 1px solid rgba(255, 255, 255, 0.13);
+
+  border-radius: 24px;
+
+  background: rgba(10, 12, 16, 0.28);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 15px 40px rgba(0, 0, 0, 0.2);
+    0 15px 45px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 
   overflow: hidden;
 
   transition:
     transform 0.4s ease,
-    border-color 0.4s ease;
+    border-color 0.4s ease,
+    background 0.4s ease;
 }
 
 .story-card:hover {
-  transform: translateY(-7px);
-  border-color: rgba(170, 225, 250, 0.25);
+  transform: translateY(-6px);
+
+  border-color: rgba(255, 255, 255, 0.25);
+
+  background: rgba(15, 18, 23, 0.38);
 }
 
 .story-index {
-  margin-bottom: 24px;
-  color: rgba(130, 210, 240, 0.55);
-  font-family: "Cinzel", serif;
+  font-family: var(--font-chapter);
+
   font-size: 11px;
-  letter-spacing: 0.22em;
+
+  letter-spacing: 0.25em;
+
+  color: var(--text-muted);
 }
 
 .story-card h2 {
-  margin: 0 0 14px;
-  font-family: "Cormorant Garamond", serif;
-  font-size: 34px;
+  margin:
+    25px
+    0
+    12px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(34px, 3.5vw, 52px);
+
   font-weight: 500;
-  line-height: 1.05;
+
+  font-style: italic;
+
+  line-height: 1;
+
+  letter-spacing: -0.025em;
 }
 
 .story-card p {
-  margin: 0;
+  font-family: var(--font-body);
+
+  font-size: 18px;
+
+  line-height: 1.65;
+
   color: var(--text-soft);
-  font-family: "EB Garamond", serif;
-  font-size: 17px;
-  line-height: 1.7;
 }
 
 .story-meta {
-  margin-top: 20px;
-  color: var(--text-muted);
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  margin-top: 25px;
+
+  font-family: var(--font-chapter);
+
+  font-size: 10px;
+
+  letter-spacing: 0.18em;
+
   text-transform: uppercase;
+
+  color: var(--text-muted);
 }
 
 .story-card-meta {
-  margin-top: 28px;
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
 
-/* =========================================================
-   BUTTON
-   ========================================================= */
-
-.primary-button {
-  position: relative;
-  display: inline-flex;
   align-items: center;
-  justify-content: center;
 
-  min-height: 54px;
-  padding: 0 26px;
+  justify-content: space-between;
 
-  border: 1px solid rgba(170, 220, 245, 0.20);
-  border-radius: 14px;
+  gap: 20px;
 
-  background:
-    linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.12),
-      rgba(255, 255, 255, 0.035)
-    );
-
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 10px 35px rgba(0, 0, 0, 0.25);
-
-  transition:
-    transform 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease;
+  margin-top: 30px;
 }
 
-.primary-button:hover {
-  transform: translateY(-3px);
-  border-color: rgba(170, 225, 250, 0.45);
-
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 12px 40px rgba(0, 0, 0, 0.32),
-    0 0 24px rgba(100, 190, 255, 0.12);
-}
 
 /* =========================================================
    STORY PAGE
    ========================================================= */
 
 .story-page {
-  min-height: 100vh;
-  padding-bottom: 160px;
+  position: relative;
+
+  z-index: 10;
 }
 
+
+/* =========================================================
+   STORY HERO
+   ========================================================= */
+
 .story-hero {
-  min-height: 70vh;
+  min-height: 75vh;
+
   display: flex;
   align-items: center;
-  padding: 120px var(--page-padding) 100px;
+
+  padding:
+    120px
+    var(--page-padding)
+    100px;
 }
 
 .story-hero-content {
-  width: min(1100px, 100%);
+  width: min(
+    1000px,
+    100%
+  );
+
   margin: 0 auto;
 }
 
+.story-label {
+  margin-bottom: 24px;
+
+  font-family: var(--font-chapter);
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.3em;
+
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+}
+
+.story-title {
+  margin-bottom: 20px;
+
+  font-family: var(--font-royal);
+
+  font-size: clamp(48px, 7vw, 110px);
+
+  font-weight: 700;
+
+  line-height: 1.05;
+
+  letter-spacing: -0.025em;
+
+  text-transform: uppercase;
+
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    #cfcfcf 20%,
+    #737373 45%,
+    #eeeeee 58%,
+    #686868 80%,
+    #ffffff 100%
+  );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  -webkit-text-fill-color: transparent;
+
+  text-shadow:
+    0 5px 30px rgba(0, 0, 0, 0.55),
+    0 0 30px rgba(255, 255, 255, 0.08);
+}
+.story-subtitle {
+  max-width: 700px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(24px, 2.8vw, 38px);
+
+  font-style: italic;
+
+  font-weight: 400;
+
+  line-height: 1.2;
+
+  color: var(--text-soft);
+}
+
+
+/* =========================================================
+   STORY BACK LINK
+   ========================================================= */
+
 .back-link {
-  display: inline-block;
-  margin-bottom: 60px;
-  color: rgba(220, 235, 242, 0.65);
-  text-decoration: none;
-  font-size: 13px;
-  transition: color 0.3s ease;
+  display: inline-flex;
+
+  align-items: center;
+
+  margin-bottom: 40px;
+
+  font-family: var(--font-ui);
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .back-link:hover {
   color: #ffffff;
+
+  transform: translateX(-4px);
 }
 
-.story-label {
-  margin-bottom: 22px;
-  color: rgba(210, 230, 240, 0.50);
-  font-family: "Cinzel", serif;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.30em;
-  text-transform: uppercase;
-}
-
-.story-title {
-  margin: 0;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(56px, 7vw, 108px);
-  font-weight: 500;
-  line-height: 0.92;
-  letter-spacing: -0.02em;
-}
-
-.story-subtitle {
-  max-width: 700px;
-  margin-top: 28px;
-  color: var(--text-soft);
-  font-family: "EB Garamond", serif;
-  font-size: 20px;
-  line-height: 1.7;
-}
 
 /* =========================================================
    CHAPTERS
@@ -989,70 +1580,144 @@ main {
 
 .chapters {
   width: min(
-    calc(100% - (var(--page-padding) * 2)),
-    var(--reading-width)
+    var(--reading-width),
+    calc(100% - (var(--page-padding) * 2))
   );
+
   margin: 0 auto;
+
+  padding:
+    80px
+    0
+    180px;
 }
 
 .chapter {
-  padding: 100px 0;
-  border-top: 1px solid rgba(160, 220, 245, 0.12);
+  padding:
+    100px
+    0;
+
+  border-top:
+    1px solid var(--line);
 }
 
 .chapter:first-child {
-  border-top: 0;
+  border-top: none;
+}
+
+.chapter-content {
+  width: 100%;
 }
 
 .chapter-number {
-  margin-bottom: 18px;
-  color: rgba(130, 210, 240, 0.55);
-  font-family: "Cinzel", serif;
-  font-size: 10px;
-  letter-spacing: 0.24em;
+  margin-bottom: 25px;
+
+  font-family: var(--font-chapter);
+
+  font-size: 11px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.22em;
+
   text-transform: uppercase;
+
+  color: var(--text-muted);
 }
 
 .chapter h2 {
-  margin: 0 0 35px;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(32px, 3vw, 46px);
+  margin-bottom: 35px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(38px, 5vw, 62px);
+
   font-weight: 500;
+
+  font-style: italic;
+
   line-height: 1;
+
+  letter-spacing: -0.025em;
 }
 
 .chapter-text {
-  color: rgba(235, 240, 243, 0.82);
-  font-family: "EB Garamond", serif;
-  font-size: 20px;
-  line-height: 1.95;
   white-space: pre-line;
+
+  font-family: var(--font-body);
+
+  font-size: 21px;
+
+  font-weight: 400;
+
+  line-height: 1.85;
+
+  color: var(--text-soft);
 }
+
+.chapter-text p {
+  margin-bottom: 1.5em;
+}
+
 
 /* =========================================================
    ABOUT PAGE
    ========================================================= */
 
 .about-page {
-  min-height: 100vh;
-  padding-bottom: 140px;
+  position: relative;
+
+  z-index: 10;
+
+  width: min(
+    var(--content-width),
+    calc(100% - (var(--page-padding) * 2))
+  );
+
+  margin: 0 auto;
+
+  padding:
+    140px
+    0
+    160px;
 }
 
 .about-content {
   width: min(
-    calc(100% - (var(--page-padding) * 2)),
-    900px
+    var(--reading-width),
+    100%
   );
-  margin: 0 auto;
+}
+
+.about-content h2 {
+  margin:
+    70px
+    0
+    25px;
+
+  font-family: var(--font-title);
+
+  font-size: clamp(36px, 4vw, 58px);
+
+  font-weight: 500;
+
+  font-style: italic;
+
+  line-height: 1;
 }
 
 .about-content p {
-  max-width: 760px;
-  color: var(--text-soft);
-  font-family: "EB Garamond", serif;
+  margin-bottom: 25px;
+
+  font-family: var(--font-body);
+
   font-size: 20px;
-  line-height: 1.9;
+
+  line-height: 1.8;
+
+  color: var(--text-soft);
 }
+
 
 /* =========================================================
    STORY TRANSITION
@@ -1060,227 +1725,211 @@ main {
 
 .story-transition {
   position: fixed;
+
   inset: 0;
+
   z-index: 1000;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
   background: #08090b;
+
   pointer-events: none;
 
-  animation: transitionIn 0.8s ease forwards;
+  animation:
+    story-transition-out 1.2s
+    cubic-bezier(0.77, 0, 0.18, 1)
+    forwards;
 }
 
 .story-transition-title {
-  font-family: "Tangerine", cursive;
-  font-size: clamp(70px, 10vw, 140px);
+  font-family: var(--font-royal);
+
+  font-size: clamp(32px, 6vw, 88px);
+
+  font-weight: 700;
+
+  letter-spacing: 0.02em;
+
+  text-transform: uppercase;
+
+  text-align: center;
+
   color: #ffffff;
 
-  text-shadow:
-    0 0 35px rgba(255, 255, 255, 0.2);
-
-  animation: transitionTitle 0.8s ease forwards;
+  animation:
+    story-title-reveal 1s
+    cubic-bezier(0.77, 0, 0.18, 1)
+    forwards;
 }
 
-@keyframes transitionIn {
+@keyframes story-transition-out {
   0% {
     opacity: 1;
+    visibility: visible;
+  }
+
+  65% {
+    opacity: 1;
+    visibility: visible;
   }
 
   100% {
     opacity: 0;
+    visibility: hidden;
   }
 }
 
-@keyframes transitionTitle {
+@keyframes story-title-reveal {
   0% {
     opacity: 0;
-    transform: scale(0.92);
+
+    transform:
+      translateY(20px)
+      scale(0.96);
+
+    filter: blur(8px);
   }
 
-  30% {
+  45% {
     opacity: 1;
-    transform: scale(1);
-  }
 
-  70% {
-    opacity: 1;
-    transform: scale(1.02);
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter: blur(0);
   }
 
   100% {
     opacity: 0;
-    transform: scale(1.06);
+
+    transform:
+      translateY(-20px)
+      scale(1.02);
+
+    filter: blur(4px);
   }
 }
 
+
 /* =========================================================
-   TABLET
+   DECORATIVE TYPOGRAPHY
    ========================================================= */
 
-@media (max-width: 1200px) {
-  :root {
-    --main-width: min(52vw, 720px);
-    --side-width: clamp(155px, 14vw, 205px);
-    --window-gap: 24px;
-  }
+/*
+   Use this class for rare handwritten/calligraphic
+   accents. Do NOT use it everywhere.
+*/
 
-  .window-stage {
-    width: 98vw;
-  }
+.script-accent {
+  font-family: var(--font-title);
+
+  font-style: italic;
+
+  font-weight: 400;
+
+  letter-spacing: 0;
+
+  text-transform: none;
 }
 
-/* =========================================================
-   TABLET / SMALL DESKTOP
-   ========================================================= */
 
-@media (max-width: 980px) {
-  :root {
-    --main-width: min(55vw, 650px);
-    --side-width: 145px;
-    --window-gap: 18px;
-  }
+/*
+   Optional luxury display accent.
+   This is intentionally restrained.
+*/
 
-  .window-stage {
-    width: 100%;
-    height: 620px;
-  }
+.royal-accent {
+  font-family: var(--font-royal);
 
-  .side-window-left,
-  .side-window-right {
-    height: 64%;
-  }
+  font-weight: 700;
 
-  .side-window-inner {
-    padding: 24px 16px;
-  }
+  letter-spacing: 0.02em;
 
-  .window-lines {
-    gap: 25px;
-    margin-top: 34px;
-  }
+  text-transform: uppercase;
 }
 
+
 /* =========================================================
-   MOBILE
+   RESPONSIVE — TABLET
    ========================================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
+
   .navbar {
-    position: sticky;
-  }
+    width: calc(100% - 32px);
 
-  /*
-    On mobile, collapse the scroll container back to normal flow.
-    The animation is skipped (JS passes progress=1) so panels show
-    in their natural stacked state.
-  */
-  .home-scroll-container {
-    height: auto;
-  }
+    padding:
+      0
+      22px;
 
-  .home-sticky-inner {
-    position: relative;
-    top: auto;
-    height: auto;
-    overflow: visible;
-  }
-
-  .home-sticky-inner .home {
-    min-height: calc(100vh - 90px);
-    height: auto;
-    padding-top: 70px;
-    padding-bottom: 100px;
-  }
-
-  .window-stage {
-    width: 100%;
-    height: auto;
-    min-height: 920px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 24px;
-
-    perspective: none;
-  }
-
-  .main-window {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: min(88vw, 650px);
-    transform: none;
-    order: 1;
-  }
-
-  .side-window-left,
-  .side-window-right {
-    position: relative;
-    top: auto;
-    left: auto;
-    right: auto;
-
-    width: min(72vw, 360px);
-    height: 190px;
-
-    transform: none;
     border-radius: 18px;
-
-    order: 2;
   }
 
-  /* On mobile reset the animated class transforms too */
-  .side-window-left.side-window-animated,
-  .side-window-right.side-window-animated {
-    transform: none;
-    opacity: 1;
-  }
-
-  .side-window-left.side-window-animated:hover,
-  .side-window-right.side-window-animated:hover {
-    transform: translateY(-3px);
-  }
-
-  .side-window-right {
-    order: 3;
-  }
-
-  .side-window-left:hover,
-  .side-window-right:hover {
-    transform: translateY(-3px);
+  .nav-links {
+    gap: 22px;
   }
 
   .home {
-    min-height: auto;
-    padding: 70px 20px 100px;
+    padding:
+      80px
+      32px
+      100px;
   }
 
-  .page-header {
-    padding: 110px 24px 60px;
+  .home-content {
+    margin-left: 0;
+  }
+
+  .stories-page,
+  .about-page,
+  .page {
+    width: calc(100% - 64px);
+
+    padding-top: 110px;
+  }
+
+  .story-hero {
+    padding:
+      100px
+      32px
+      80px;
+  }
+
+  .chapters {
+    width: calc(100% - 64px);
   }
 }
 
+
 /* =========================================================
-   SMALL MOBILE
+   RESPONSIVE — MOBILE
    ========================================================= */
 
-@media (max-width: 640px) {
+@media (max-width: 600px) {
+
   .navbar {
     top: 12px;
+
     width: calc(100% - 24px);
+
     min-height: 58px;
+
     margin-top: 12px;
-    padding: 0 18px;
-    border-radius: 17px;
+
+    padding:
+      0
+      18px;
+
+    border-radius: 16px;
   }
 
   .logo {
-    font-size: 30px;
+    font-size: 32px;
   }
 
   .nav-links {
@@ -1288,113 +1937,147 @@ main {
   }
 
   .nav-links a {
-    font-size: 11px;
+    font-size: 9px;
+
+    letter-spacing: 0.1em;
   }
 
   .home {
-    padding: 50px 16px 80px;
+    min-height: calc(100vh - 80px);
+
+    padding:
+      70px
+      24px
+      90px;
   }
 
-  .window-stage {
-    min-height: 760px;
-    gap: 18px;
+  .home h1 {
+    font-size: clamp(40px, 13vw, 62px);
+
+    line-height: 1.02;
   }
 
-  .main-window {
-    width: min(92vw, 560px);
+  .home-description {
+    margin:
+      28px
+      0
+      32px;
+
+    font-size: 18px;
   }
 
-  .side-window-left,
-  .side-window-right {
-    width: min(78vw, 330px);
-    height: 170px;
-  }
+  .stories-page,
+  .about-page,
+  .page {
+    width: calc(100% - 48px);
 
-  .window-lines {
-    gap: 24px;
-    margin-top: 30px;
-  }
-
-  .page-header {
-    padding: 100px 24px 50px;
-  }
-
-  .page-header h1 {
-    font-size: 42px;
+    padding:
+      100px
+      0
+      120px;
   }
 
   .story-grid {
-    width: calc(100% - 48px);
+    grid-template-columns: 1fr;
   }
 
   .story-card {
-    min-height: 260px;
-    padding: 25px;
+    min-height: 320px;
+
+    padding: 28px;
+
+    border-radius: 20px;
+  }
+
+  .story-card h2 {
+    font-size: 40px;
+  }
+
+  .story-hero {
+    min-height: 70vh;
+
+    padding:
+      90px
+      24px
+      70px;
   }
 
   .story-title {
-    font-size: clamp(48px, 14vw, 72px);
+    font-size: clamp(42px, 13vw, 70px);
   }
 
   .story-subtitle {
-    font-size: 18px;
+    font-size: 25px;
   }
 
   .chapters {
     width: calc(100% - 48px);
+
+    padding:
+      40px
+      0
+      120px;
   }
 
   .chapter {
-    padding: 70px 0;
+    padding:
+      75px
+      0;
+  }
+
+  .chapter h2 {
+    font-size: 40px;
   }
 
   .chapter-text {
-    font-size: 18px;
-    line-height: 1.85;
+    font-size: 19px;
+
+    line-height: 1.75;
+  }
+
+  .about-content p {
+    font-size: 19px;
   }
 }
+
 
 /* =========================================================
    REDUCED MOTION
    ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
-    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 
-  /* Collapse scroll container — animation skipped entirely */
-  .home-scroll-container {
+  .story-reader-scroll-track {
     height: auto;
   }
 
-  .home-sticky-inner {
+  .story-reader-stage-wrapper {
     position: relative;
-    top: auto;
+
     height: auto;
-    overflow: visible;
   }
 
-  .home-sticky-inner .home {
-    min-height: calc(100vh - 90px);
-    height: auto;
-    padding-top: 70px;
-    padding-bottom: 100px;
+  .side-window-left {
+    transform:
+      translateY(-50%)
+      rotateY(34deg);
   }
 
-  /* Ensure animated panels snap to final state */
-  .side-window-left.side-window-animated {
-    transform: translateY(-50%) rotateY(10deg);
-    opacity: 1;
-  }
-
-  .side-window-right.side-window-animated {
-    transform: translateY(-50%) rotateY(-10deg);
-    opacity: 1;
+  .side-window-right {
+    transform:
+      translateY(-50%)
+      rotateY(-34deg);
   }
 }

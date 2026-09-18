@@ -5,21 +5,15 @@ import {
   Link,
   useParams,
 } from "react-router-dom";
-
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 
 import stories from "./data/stories";
 import "./App.css";
 
 
-/* =========================================================
-   BACKGROUND
-   ========================================================= */
-
 function Background() {
   return (
     <div className="background-layer">
-
       <img
         className="background-image"
         src="/images/ultron.png"
@@ -38,7 +32,6 @@ function Background() {
 
       <div className="background-overlay"></div>
       <div className="background-vignette"></div>
-
     </div>
   );
 }
@@ -52,12 +45,23 @@ function Navbar() {
   return (
     <header className="navbar">
 
-      <Link
-        to="/"
-        className="logo"
-      >
-        prgstories
-      </Link>
+      <div className="navbar-left">
+
+        <button
+          className="menu-button"
+          type="button"
+          aria-label="Open menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <Link to="/" className="logo">
+          prgstories
+        </Link>
+
+      </div>
 
 
       <nav className="nav-links">
@@ -82,267 +86,35 @@ function Navbar() {
 
 
 /* =========================================================
-   SIDE WINDOW
+   HOME — no three-window system. Temporary placeholder only.
    ========================================================= */
-
-/*
-  scrollProgress: 0 = initial hidden-behind-main state
-                  1 = final fully-expanded state (matches existing design)
-*/
-function SideWindow({ side, label, scrollProgress }) {
-  /*
-    At progress = 0:
-      Left  window: translateX( +HideAmount) — shoved right, behind main
-      Right window: translateX( -HideAmount) — shoved left, behind main
-
-    At progress = 1:
-      translateX( 0 ) — natural CSS position, matches existing design
-
-    The hide amount (in px) needs to push the panel so it sits behind the
-    main window.  We use a CSS custom property --hide-tx set inline and
-    read in the transform rule so there is never a transform conflict.
-
-    rotateY also interpolates:
-      Left:  10deg * progress  (0 → 10deg)
-      Right: -10deg * progress (0 → -10deg)
-
-    The existing CSS `left` / `right` properties position the panel
-    geometrically; we do NOT change those.  We only layer on a translateX
-    and rotateY via the inline style property.
-  */
-
-  // Amount to shift panels inward at progress = 0.
-  // We pick a generous value that guarantees they are behind the main window
-  // across all desktop viewport sizes.  On mobile the animation is disabled.
-  const HIDE_TX_PX = 260; // px — roughly side-width + window-gap
-
-  const p = scrollProgress;  // 0 → 1
-
-  const sign = side === "left" ? 1 : -1;  // left shifts right (+), right shifts left (-)
-
-  // translateX interpolation: from ±HIDE_TX_PX down to 0
-  const tx = sign * HIDE_TX_PX * (1 - p);
-
-  // rotateY interpolation: from 0 to ±10deg
-  const ry = sign * 10 * p;
-
-  // Opacity: fade in from 0.12 to 1 during the first 40% of the scroll
-  const opacity = Math.min(1, 0.12 + p * (1 / 0.6));
-
-  // z-index: start below main (z-index 3 is natural), keep at 3 throughout.
-  // Main window has z-index 5, so side windows start visually behind it.
-  // No z-index change needed.
-
-  const style = {
-    "--sw-tx": `${tx}px`,
-    "--sw-ry": `${ry}deg`,
-    "--sw-opacity": opacity,
-    // During active scroll, suppress all transitions so the rAF-driven
-    // transform is never lagged by the CSS 0.45s ease transition.
-    // At p=0 and p=1 the CSS transition can apply normally (hover, etc.)
-    transition: p > 0 && p < 1
-      ? "none"
-      : undefined,
-  };
-
-  return (
-    <aside
-      className={`side-window side-window-${side} side-window-animated`}
-      style={style}
-    >
-
-      <div className="side-window-inner">
-
-        <div className="window-label">
-          {label}
-        </div>
-
-
-        <div className="window-lines">
-
-          <div className="window-line"></div>
-          <div className="window-line"></div>
-          <div className="window-line"></div>
-          <div className="window-line"></div>
-          <div className="window-line"></div>
-
-        </div>
-
-      </div>
-
-    </aside>
-  );
-}
-
-
-/* =========================================================
-   HOME
-   ========================================================= */
-
-/*
-  Scroll strategy:
-  - .home-scroll-container is position:relative with height 300vh.
-    This gives the scroll room to travel while the viewport content is "pinned".
-  - .home-sticky-inner is position:sticky, top:0, height:100vh.
-    It stays locked at the top of the viewport for the full 200vh of scroll travel.
-  - We read scrollTop of the container (or window scroll offset relative to the
-    container top) to derive a 0→1 progress value.
-
-  Mobile (<=800px): layout is already stacked. We skip the animation and
-  pass scrollProgress=1 so panels are shown in their final (natural) state.
-
-  prefers-reduced-motion: same — skip animation, pass progress=1.
-*/
 
 function Home() {
-  const containerRef = useRef(null);
-  const rafRef = useRef(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  // Detect mobile or reduced-motion preference once on mount.
-  const skipAnimation = useRef(false);
-
-  useEffect(() => {
-    const mq800 = window.matchMedia("(max-width: 800px)");
-    const mqMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-    const checkSkip = () => {
-      skipAnimation.current = mq800.matches || mqMotion.matches;
-      if (skipAnimation.current) {
-        setScrollProgress(1);
-      }
-    };
-
-    checkSkip();
-    mq800.addEventListener("change", checkSkip);
-    mqMotion.addEventListener("change", checkSkip);
-
-    return () => {
-      mq800.removeEventListener("change", checkSkip);
-      mqMotion.removeEventListener("change", checkSkip);
-    };
-  }, []);
-
-  const updateProgress = useCallback(() => {
-    rafRef.current = null;
-
-    if (skipAnimation.current) {
-      return;
-    }
-
-    const el = containerRef.current;
-    if (!el) return;
-
-    /*
-      Use scrollY + offsetTop so progress is exactly 0 when the page
-      first loads regardless of where the container sits in the document
-      (below navbar, etc.).
-
-      scrollTravel = containerHeight - viewportHeight
-        = 300vh - 100vh = 200vh of usable scroll distance
-
-      progress = (scrollY - containerTop) / scrollTravel
-      clamped to [0, 1]
-    */
-
-    const viewportH = window.innerHeight;
-    const containerTop = el.offsetTop;          // distance from doc top to container
-    const containerH   = el.offsetHeight;       // 300vh in px
-    const scrollTravel = containerH - viewportH; // 200vh in px
-
-    if (scrollTravel <= 0) {
-      setScrollProgress(1);
-      return;
-    }
-
-    const scrolled = window.scrollY - containerTop;
-    const raw      = scrolled / scrollTravel;
-    const clamped  = Math.max(0, Math.min(1, raw));
-
-    setScrollProgress(clamped);
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (rafRef.current) return;
-      rafRef.current = requestAnimationFrame(updateProgress);
-    };
-
-    // Run once on mount so initial state is correct
-    updateProgress();
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, [updateProgress]);
-
   return (
-    /*
-      .home-scroll-container: tall relative container (300vh).
-      Gives the browser scroll room while the sticky inner stays visible.
-    */
-    <div
-      className="home-scroll-container"
-      ref={containerRef}
-    >
+    <main className="home">
 
-      {/* Sticky inner: stays pinned for the full scroll duration */}
-      <div className="home-sticky-inner">
+      <div className="home-placeholder">
 
-        <main className="home">
-
-          <div className="window-stage">
-
-            {/* LEFT WINDOW */}
-            <SideWindow
-              side="left"
-              label="LIST 01"
-              scrollProgress={scrollProgress}
-            />
-
-
-            {/* MAIN WINDOW */}
-            <section className="main-window">
-
-              <div className="main-window-inner">
-                {/* Main content will be added later */}
-              </div>
-
-            </section>
-
-
-            {/* RIGHT WINDOW */}
-            <SideWindow
-              side="right"
-              label="LIST 02"
-              scrollProgress={scrollProgress}
-            />
-
-          </div>
-
-        </main>
+        <p className="home-placeholder-text">
+          Homepage coming soon.
+        </p>
 
       </div>
 
-    </div>
+    </main>
   );
 }
 
 
 /* =========================================================
-   STORIES PAGE
+   STORIES
    ========================================================= */
 
 function Stories() {
   return (
     <main className="stories-page">
 
-      <header className="page-header">
+      <div className="page-header">
 
         <div className="home-eyebrow">
           PRGSTORIES
@@ -352,10 +124,10 @@ function Stories() {
           Stories
         </h1>
 
-      </header>
+      </div>
 
 
-      <section className="story-grid">
+      <div className="story-grid">
 
         {stories.map((story, index) => (
 
@@ -364,23 +136,24 @@ function Stories() {
             key={story.id}
           >
 
-            <div className="story-index">
-              {String(index + 1).padStart(2, "0")}
-            </div>
+            <div>
 
+              <div className="story-index">
+                {String(index + 1).padStart(2, "0")}
+              </div>
 
-            <h2>
-              {story.title}
-            </h2>
+              <h2>
+                {story.title}
+              </h2>
 
+              <p>
+                {story.description}
+              </p>
 
-            <p>
-              {story.description}
-            </p>
+              <div className="story-meta">
+                {story.genre} · {story.status}
+              </div>
 
-
-            <div className="story-meta">
-              {story.genre} · {story.status}
             </div>
 
 
@@ -399,7 +172,7 @@ function Stories() {
 
         ))}
 
-      </section>
+      </div>
 
     </main>
   );
@@ -407,7 +180,7 @@ function Stories() {
 
 
 /* =========================================================
-   STORY PAGE
+   STORY READER — the ONLY three-window system in the app
    ========================================================= */
 
 function Story() {
@@ -417,10 +190,76 @@ function Story() {
     (item) => item.id === storyId
   );
 
+  const [activeChapterIndex, setActiveChapterIndex] = useState(0);
+  const [prevStoryId, setPrevStoryId] = useState(storyId);
+
+  if (prevStoryId !== storyId) {
+    setPrevStoryId(storyId);
+    setActiveChapterIndex(0);
+  }
+
+  const scrollTrackRef = useRef(null);
+  const stageRef = useRef(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [storyId]);
+
+  useEffect(() => {
+    const track = scrollTrackRef.current;
+    const stage = stageRef.current;
+
+    if (!track || !stage) {
+      return;
+    }
+
+    let ticking = false;
+
+    const updateReveal = () => {
+      const rect = track.getBoundingClientRect();
+
+      const scrollableDistance = Math.max(
+        1,
+        rect.height - window.innerHeight
+      );
+
+      const progress = Math.min(
+        1,
+        Math.max(0, -rect.top / scrollableDistance)
+      );
+
+      stage.style.setProperty("--reveal", progress.toFixed(4));
+
+      ticking = false;
+    };
+
+    const onScrollOrResize = () => {
+      if (!ticking) {
+        ticking = true;
+
+        requestAnimationFrame(updateReveal);
+      }
+    };
+
+    updateReveal();
+
+    window.addEventListener(
+      "scroll",
+      onScrollOrResize,
+      { passive: true }
+    );
+
+    window.addEventListener("resize", onScrollOrResize);
+
+    return () => {
+      window.removeEventListener("scroll", onScrollOrResize);
+      window.removeEventListener("resize", onScrollOrResize);
+    };
+  }, [storyId]);
 
   if (!story) {
     return (
-      <main className="page not-found">
+      <main className="page">
 
         <div className="home-eyebrow">
           ERROR
@@ -441,73 +280,175 @@ function Story() {
     );
   }
 
+  const hasChapters = story.chapters && story.chapters.length > 0;
+
+  const activeChapter = hasChapters
+    ? story.chapters[activeChapterIndex] || story.chapters[0]
+    : null;
+
 
   return (
-    <main className="story-page">
+    <main className="story-reader-page">
 
-      <section className="story-hero">
+      <div
+        className="story-reader-scroll-track"
+        ref={scrollTrackRef}
+      >
 
-        <div className="story-hero-content">
+        <div className="story-reader-stage-wrapper">
 
-          <Link
-            to="/stories"
-            className="back-link"
+          <div
+            className="window-stage"
+            ref={stageRef}
+            style={{ "--reveal": 0 }}
           >
-            ← Back to Stories
-          </Link>
+
+            {/* LEFT WINDOW — Story info + chapters */}
+
+            <aside className="side-window side-window-left">
+
+              <div className="window-inner reader-info-inner">
+
+                <Link
+                  to="/stories"
+                  className="back-link"
+                >
+                  ← Back to Stories
+                </Link>
+
+                <div className="window-label">
+                  {story.genre} · {story.status}
+                </div>
+
+                <h2 className="reader-story-title">
+                  {story.title}
+                </h2>
+
+                <p className="reader-story-description">
+                  {story.description}
+                </p>
+
+                <div className="reader-chapter-list-label">
+                  Chapters
+                </div>
+
+                <div className="reader-chapter-list">
+
+                  {hasChapters ? (
+
+                    story.chapters.map((chapter, index) => (
+
+                      <button
+                        key={chapter.id}
+                        type="button"
+                        className={
+                          "reader-chapter-btn" +
+                          (index === activeChapterIndex
+                            ? " reader-chapter-btn-active"
+                            : "")
+                        }
+                        onClick={() => setActiveChapterIndex(index)}
+                      >
+
+                        <span className="reader-chapter-btn-number">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+
+                        <span className="reader-chapter-btn-title">
+                          {chapter.title}
+                        </span>
+
+                      </button>
+
+                    ))
+
+                  ) : (
+
+                    <div className="reader-chapter-list-empty">
+                      No chapters yet.
+                    </div>
+
+                  )}
+
+                </div>
+
+              </div>
+
+            </aside>
 
 
-          <div className="story-label">
-            {story.genre} · {story.status}
+            {/* MAIN WINDOW — Reading area (stationary) */}
+
+            <section className="main-window">
+
+              <div className="main-window-inner reader-main-inner">
+
+                {activeChapter ? (
+
+                  <>
+
+                    <div className="chapter-number">
+                      Chapter {String(activeChapterIndex + 1).padStart(2, "0")}
+                    </div>
+
+                    <h1 className="reader-chapter-title">
+                      {activeChapter.title}
+                    </h1>
+
+                    <div className="chapter-text">
+                      {activeChapter.content}
+                    </div>
+
+                  </>
+
+                ) : (
+
+                  <div className="reader-chapter-list-empty">
+                    This story has no chapters yet.
+                  </div>
+
+                )}
+
+              </div>
+
+            </section>
+
+
+            {/* RIGHT WINDOW — Comments */}
+
+            <aside className="side-window side-window-right">
+
+              <div className="window-inner reader-comments-inner">
+
+                <div className="window-label">
+                  Discussion
+                </div>
+
+                <div className="reader-comments-placeholder">
+
+                  <p className="reader-comments-empty">
+                    No comments yet. Be the first to share
+                    your thoughts on this chapter.
+                  </p>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="primary-button reader-comment-button"
+                >
+                  Write a Comment
+                </button>
+
+              </div>
+
+            </aside>
+
           </div>
-
-
-          <h1 className="story-title">
-            {story.title}
-          </h1>
-
-
-          <p className="story-subtitle">
-            {story.subtitle}
-          </p>
 
         </div>
 
-      </section>
-
-
-      <section className="chapters">
-
-        {story.chapters.map((chapter, index) => (
-
-          <article
-            className="chapter"
-            key={chapter.id}
-          >
-
-            <div className="chapter-content">
-
-              <div className="chapter-number">
-                Chapter {String(index + 1).padStart(2, "0")}
-              </div>
-
-
-              <h2>
-                {chapter.title}
-              </h2>
-
-
-              <div className="chapter-text">
-                {chapter.content}
-              </div>
-
-            </div>
-
-          </article>
-
-        ))}
-
-      </section>
+      </div>
 
     </main>
   );
@@ -522,7 +463,7 @@ function About() {
   return (
     <main className="about-page">
 
-      <header className="page-header">
+      <div className="page-header">
 
         <div className="home-eyebrow">
           PRGSTORIES
@@ -532,10 +473,10 @@ function About() {
           About
         </h1>
 
-      </header>
+      </div>
 
 
-      <section className="about-content">
+      <div className="about-content">
 
         <p>
           prgstories is a collection of stories,
@@ -543,7 +484,7 @@ function About() {
           in one place.
         </p>
 
-      </section>
+      </div>
 
     </main>
   );
@@ -561,7 +502,6 @@ function App() {
       <Background />
 
       <Navbar />
-
 
       <Routes>
 
