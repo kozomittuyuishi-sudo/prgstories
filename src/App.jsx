@@ -316,10 +316,31 @@ function Story() {
                   ← Back to Stories
                 </Link>
 
-                <div className="window-label">
-                  {story.genre} · {story.status}
-                </div>
+                <div className="reader-story-meta">
 
+                  <div className="reader-story-genres">
+
+                    {(Array.isArray(story.genre)
+                      ? story.genre
+                      : [story.genre]
+                    ).map((genre) => (
+
+                      <span
+                        key={genre}
+                        className="reader-story-genre"
+                      >
+                        {genre}
+                      </span>
+
+                    ))}
+
+                  </div>
+
+                  <div className="reader-story-status">
+                    {story.status}
+                  </div>
+
+                </div>
                 <h2 className="reader-story-title">
                   {story.title}
                 </h2>
@@ -377,13 +398,13 @@ function Story() {
             </aside>
 
 
-            {/* MAIN WINDOW — Reading area (stationary) */}
+        {/* MAIN WINDOW — Reading area (stationary) */}
 
-            <section className="main-window">
+        <section className="main-window">
 
-              <div className="main-window-inner reader-main-inner">
+          <div className="main-window-mask" aria-hidden="true"></div>
 
-                {activeChapter ? (
+          <div className="main-window-inner reader-main-inner">                {activeChapter ? (
 
                   <>
 

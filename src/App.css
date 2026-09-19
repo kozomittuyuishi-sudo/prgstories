@@ -556,12 +556,47 @@ main {
 
   pointer-events: none;
 }
-
 .main-window-inner {
   position: relative;
 
+  z-index: 2;
+
   width: 100%;
   height: 100%;
+}
+
+
+/* Masking/backdrop layer — sits between the main window's
+   glass and its content. Hides the side panels' recognizable
+   detail when they are collapsed behind the main window at
+   scroll progress 0, while still letting a dim, blurred wash
+   of the Ultron background/side-panel color through. */
+
+.main-window-mask {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      160deg,
+      rgba(8, 14, 19, 0.82) 0%,
+      rgba(5, 9, 13, 0.86) 100%
+    );
+
+  backdrop-filter:
+    blur(16px)
+    saturate(115%);
+
+  -webkit-backdrop-filter:
+    blur(16px)
+    saturate(115%);
+
+  pointer-events: none;
 }
 
 
@@ -782,10 +817,56 @@ main {
   font-size: 10px;
 }
 
-.reader-info-inner .window-label {
-  margin-bottom: 14px;
+.reader-story-meta {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
 }
 
+.reader-story-genres {
+  display: flex;
+  flex-wrap: wrap;
+
+  row-gap: 4px;
+  column-gap: 0;
+
+  overflow-wrap: break-word;
+
+  font-family: var(--font-chapter);
+
+  font-size: 10px;
+
+  font-weight: 500;
+
+  line-height: 1.7;
+
+  letter-spacing: 0.16em;
+
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+}
+
+.reader-story-genre:not(:last-child)::after {
+  content: " · ";
+}
+
+.reader-story-status {
+  font-family: var(--font-chapter);
+
+  font-size: 10px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.24em;
+
+  text-transform: uppercase;
+
+  color: var(--text-soft);
+}
 .reader-story-title {
   margin-bottom: 10px;
 
@@ -811,6 +892,55 @@ main {
   font-size: 14px;
 
   line-height: 1.55;
+
+  color: var(--text-soft);
+}
+.reader-story-meta {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+
+  margin-bottom: 24px;
+}
+
+.reader-story-genres {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 5px 10px;
+
+  font-family: var(--font-chapter);
+
+  font-size: 9px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.16em;
+
+  line-height: 1.6;
+
+  text-transform: uppercase;
+
+  color: var(--text-muted);
+}
+
+.reader-story-genres span {
+  white-space: nowrap;
+}
+
+.reader-story-status {
+  align-self: flex-start;
+
+  font-family: var(--font-chapter);
+
+  font-size: 10px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.2em;
+
+  text-transform: uppercase;
 
   color: var(--text-soft);
 }
