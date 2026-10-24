@@ -184,16 +184,26 @@ main {
    NAVBAR — AERO GLASS
    ========================================================= */
 
-.navbar {
+/* .navbar-wrapper is the sticky container — navbar + panel travel together */
+.navbar-wrapper {
   position: sticky;
   top: 22px;
 
   z-index: 100;
 
   width: min(90%, 1400px);
-  min-height: 64px;
 
   margin: 22px auto 0;
+}
+
+.navbar {
+  position: relative;
+
+  z-index: 1;
+
+  width: 100%;
+  min-height: 64px;
+
   padding: 0 30px;
 
   display: flex;
@@ -213,7 +223,8 @@ main {
     0 8px 35px rgba(0, 0, 0, 0.28),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
 
-  overflow: hidden;
+  /* no overflow:hidden — panel must extend below */
+  overflow: visible;
 }
 
 .navbar::before {
@@ -255,6 +266,47 @@ main {
 .navbar > * {
   position: relative;
   z-index: 1;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Hamburger button — hidden on desktop, shown on mobile */
+.menu-button {
+  display: none;
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+
+  flex-shrink: 0;
+}
+
+.menu-button span {
+  display: block;
+
+  width: 20px;
+  height: 1.5px;
+
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+
+  transition:
+    transform 0.3s ease,
+    opacity   0.3s ease,
+    transform 0.3s ease;
 }
 
 
@@ -309,7 +361,7 @@ main {
 }
 
 /* =========================================================
-   NAVIGATION
+   NAVIGATION — nav triggers (desktop) replace plain links
    ========================================================= */
 
 .nav-links {
@@ -319,8 +371,14 @@ main {
   gap: 38px;
 }
 
-.nav-links a {
+/* The triggers look exactly like the old nav links */
+.nav-trigger {
   position: relative;
+
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
 
   font-family: var(--font-ui);
 
@@ -337,7 +395,7 @@ main {
     opacity 0.3s ease;
 }
 
-.nav-links a::after {
+.nav-trigger::after {
   content: "";
 
   position: absolute;
@@ -356,12 +414,361 @@ main {
   transition: width 0.3s ease;
 }
 
-.nav-links a:hover {
+.nav-trigger:hover,
+.nav-trigger:focus-visible {
+  color: #ffffff;
+  outline: none;
+}
+
+.nav-trigger:hover::after,
+.nav-trigger:focus-visible::after {
+  width: 100%;
+}
+
+/* Active (panel open) — silver/blue highlight */
+.nav-trigger-active {
   color: #ffffff;
 }
 
-.nav-links a:hover::after {
+.nav-trigger-active::after {
   width: 100%;
+  background: rgba(160, 220, 255, 0.9);
+
+  box-shadow:
+    0 0 10px rgba(120, 200, 255, 0.5);
+}
+
+
+/* =========================================================
+   RADIAL WHEEL
+   Two independent fixed elements — no shared stacking context.
+
+   z-stack:
+     page content          z: 5  (main)
+     .wheel-dim            z: 90  pointer-events: none
+     .navbar-wrapper       z: 100
+     .wheel-stage          z: 110
+   ========================================================= */
+
+/* ---- Dim layer — never blocks input ---- */
+.wheel-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 10%,
+      rgba(3, 7, 11, 0.28),
+      rgba(2, 4, 7, 0.68)
+    );
+
+  animation: dim-in 0.28s ease both;
+}
+
+.wheel-dim-closing {
+  animation: dim-out 0.24s ease both;
+}
+
+@keyframes dim-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dim-out { from { opacity: 1; } to { opacity: 0; } }
+
+/* ---- Wheel stage — sits above navbar, pointer-events:none on the div ---- */
+.wheel-stage {
+  position: fixed;
+  z-index: 110;
+
+  /* Square div corners are dead — only paths/circles with pointer-events:all receive input */
+  pointer-events: none;
+
+  /* overflow visible so hover label can extend outside the SVG square */
+  overflow: visible;
+
+  filter: drop-shadow(0 12px 36px rgba(0, 0, 0, 0.60));
+
+  /* Emerge from trigger: scale from transform-origin at top-center */
+  animation: stage-emerge 0.18s cubic-bezier(0.22, 1, 0.36, 1) both;
+  transform-origin: var(--wheel-originX, 50%) 0px;
+}
+
+.wheel-stage-closing {
+  animation: stage-exit 0.22s cubic-bezier(0.4, 0, 1, 1) both !important;
+  transform-origin: var(--wheel-originX, 50%) 0px;
+}
+
+@keyframes stage-emerge {
+  from { opacity: 0; transform: scale(0.70) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);     }
+}
+
+@keyframes stage-exit {
+  from { opacity: 1; transform: scale(1)    translateY(0);    }
+  to   { opacity: 0; transform: scale(0.76) translateY(-8px); }
+}
+
+/* ---- SVG element ---- */
+.wheel-svg {
+  display: block;
+
+  /* Responsive: matches JS clamp(176px, 22vw, 232px) */
+  width:  clamp(176px, 22vw, 232px);
+  height: clamp(176px, 22vw, 232px);
+
+  overflow: visible;
+  cursor: default;
+}
+
+/* Kill all browser outlines on the SVG container */
+.wheel-svg:focus,
+.wheel-svg:focus-visible {
+  outline: none;
+}
+
+/* ---- Sector paths — each path is its own hit area ---- */
+.wheel-sector {
+  fill:         rgba(12, 18, 26, 0.74);
+  stroke:       rgba(255, 255, 255, 0.09);
+  stroke-width: 1;
+  outline:      none;
+  -webkit-tap-highlight-color: transparent;
+
+  /* pointer-events:all so only the wedge shape receives input, not the bounding box */
+  pointer-events: all;
+
+  transition:
+    fill         0.14s ease,
+    stroke       0.14s ease,
+    stroke-width 0.14s ease,
+    filter       0.14s ease;
+
+  /* Phase B: staggered radial assemble — shorter delay for compact wheel */
+  animation:
+    sector-form
+    0.44s
+    cubic-bezier(0.34, 1.20, 0.64, 1)
+    calc(0.14s + var(--sector-i, 0) * 0.04s)
+    both;
+}
+
+/* No rect outline ever */
+.wheel-sector:focus,
+.wheel-sector:focus-visible {
+  outline: none;
+}
+
+@keyframes sector-form {
+  from {
+    opacity: 0;
+    transform: scale(0.42);
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+  }
+}
+
+/* Available sectors: pointer cursor */
+.wheel-sector:not(.wheel-sector-unavailable) {
+  cursor: pointer;
+}
+
+/* Hover / pointer-active sector */
+.wheel-sector-active {
+  fill:         rgba(24, 46, 72, 0.92);
+  stroke:       rgba(130, 205, 255, 0.80);
+  stroke-width: 1.5;
+  filter:       drop-shadow(0 0 8px rgba(90, 180, 255, 0.35));
+}
+
+/* Keyboard-focused sector (no pointer on it) */
+.wheel-sector-focused {
+  fill:         rgba(18, 36, 58, 0.86);
+  stroke:       rgba(150, 215, 255, 0.60);
+  stroke-width: 1.5;
+}
+
+/* Unavailable sector — dim, default cursor */
+.wheel-sector-unavailable {
+  fill:         rgba(8, 12, 18, 0.52);
+  cursor:       default;
+}
+
+.wheel-sector-active.wheel-sector-unavailable {
+  fill:         rgba(14, 20, 30, 0.60);
+  stroke:       rgba(255, 255, 255, 0.10);
+  stroke-width: 1;
+  filter:       none;
+}
+
+/* ---- Outer ring (decorative, no events) ---- */
+.wheel-outer-ring {
+  stroke:         rgba(150, 215, 255, 0.28);
+  stroke-width:   1;
+  pointer-events: none;
+}
+
+/* ---- Hub — empty, part of hover region ---- */
+.wheel-hub {
+  fill:           rgba(6, 12, 20, 0.84);
+  stroke:         rgba(150, 215, 255, 0.35);
+  stroke-width:   1;
+  pointer-events: all;
+  cursor:         default;
+}
+
+/* ---- Sector icons — pointer-events:none, rendered in <g> ---- */
+.wheel-icon {
+  color:      rgba(200, 220, 240, 0.68);
+  transition: color 0.14s ease, opacity 0.14s ease;
+}
+
+.wheel-icon-active {
+  color: rgba(160, 220, 255, 1.00);
+}
+
+.wheel-icon-unavailable {
+  opacity: 0.38;
+}
+
+/* ---- Hover label — single HTML div, outside the ring ---- */
+.wheel-hover-label {
+  position: absolute;
+  z-index: 1;                     /* above the SVG within the stage stacking context */
+  pointer-events: none;
+
+  /* typography */
+  font-family:    var(--font-chapter);
+  font-size:      10px;
+  font-weight:    500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space:    nowrap;
+
+  color: rgba(220, 235, 250, 0.90);
+
+  /* fade in/out */
+  animation: hover-label-in 0.12s ease both;
+}
+
+@keyframes hover-label-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+
+/* =========================================================
+   MOBILE PANEL — hamburger-opened list (≤ 900px)
+   ========================================================= */
+
+.nav-mobile-panel {
+  display: none;
+  overflow: hidden;
+
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+
+  background: rgba(14, 20, 27, 0.68);
+
+  backdrop-filter: blur(24px) saturate(155%);
+  -webkit-backdrop-filter: blur(24px) saturate(155%);
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: none;
+
+  border-radius: 0 0 18px 18px;
+
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.36);
+
+  transition:
+    max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity    0.25s ease,
+    transform  0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-mobile-panel-open {
+  max-height: 600px;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.nav-mobile-section {
+  padding: 18px 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.nav-mobile-section:first-child {
+  border-top: none;
+}
+
+.nav-mobile-section-label {
+  margin-bottom: 10px;
+
+  font-family: var(--font-chapter);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+
+  color: rgba(160, 220, 255, 0.65);
+}
+
+.nav-mobile-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-mobile-option {
+  display: block;
+  padding: 7px 0;
+
+  font-family: var(--font-ui);
+  font-size: 13px;
+  letter-spacing: 0.05em;
+
+  transition: color 0.2s ease;
+}
+
+.nav-mobile-option-available {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.nav-mobile-option-available:hover,
+.nav-mobile-option-available:focus-visible {
+  color: #ffffff;
+  outline: none;
+}
+
+.nav-mobile-option-unavailable {
+  color: rgba(255, 255, 255, 0.26);
+  font-style: italic;
+  cursor: default;
+}
+
+/* menu-button open state — X shape */
+.menu-button-open span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-button-open span:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.menu-button-open span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
 }
 
 
@@ -1990,9 +2397,11 @@ main {
 
 @media (max-width: 900px) {
 
-  .navbar {
+  .navbar-wrapper {
     width: calc(100% - 32px);
+  }
 
+  .navbar {
     padding:
       0
       22px;
@@ -2000,9 +2409,23 @@ main {
     border-radius: 18px;
   }
 
-  .nav-links {
-    gap: 22px;
+  /* Show hamburger on mobile */
+  .menu-button {
+    display: flex;
   }
+
+  /* Hide desktop triggers on mobile — menu-button handles it */
+  .nav-links {
+    display: none;
+  }
+
+  /* Show mobile list panel on small screens */
+  .nav-mobile-panel {
+    display: block;
+  }
+
+  /* Radial wheel still available on mobile/tablet via wheel-container */
+  /* (it renders via fixed positioning so always accessible) */
 
   .home {
     padding:
@@ -2042,14 +2465,16 @@ main {
 
 @media (max-width: 600px) {
 
-  .navbar {
+  .navbar-wrapper {
     top: 12px;
 
     width: calc(100% - 24px);
 
-    min-height: 58px;
-
     margin-top: 12px;
+  }
+
+  .navbar {
+    min-height: 58px;
 
     padding:
       0
@@ -2062,14 +2487,8 @@ main {
     font-size: 32px;
   }
 
-  .nav-links {
-    gap: 14px;
-  }
-
-  .nav-links a {
-    font-size: 9px;
-
-    letter-spacing: 0.1em;
+  .nav-mobile-panel {
+    border-radius: 0 0 16px 16px;
   }
 
   .home {
@@ -2187,6 +2606,14 @@ main {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .wheel-stage,
+  .wheel-stage-closing,
+  .wheel-dim,
+  .wheel-dim-closing,
+  .wheel-sector {
+    animation: none;
   }
 
   .story-reader-scroll-track {
